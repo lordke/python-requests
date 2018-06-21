@@ -183,9 +183,9 @@ db = connectDB()
 
 
 #
-# initProject('23292')
+initProject('23292')
 initProject('20994')
-# sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2019-06-21 20:55:00',max_instances=3)
+sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2019-06-21 20:55:00',max_instances=3)
 sched.add_job(job('20994'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2019-06-21 20:55:00',max_instances=3)
 sched.start()
 # refresh('19179')
