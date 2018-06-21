@@ -4,8 +4,10 @@ import json
 from pymongo import MongoClient
 import pprint
 from datetime import date
-from apscheduler.schedulers.blocking import BlockingScheduler
-sched = BlockingScheduler()
+from apscheduler.schedulers.background import BackgroundScheduler
+sched = BackgroundScheduler()
+# from apscheduler.schedulers.blocking import BlockingScheduler
+# sched = BlockingScheduler()
 
 pid = '22904'
 post_id = {}
@@ -92,6 +94,7 @@ def initProject(pid):
 
     res = requests.post(url, data=rankData, headers=header,timeout=5)
     list = json.loads(json.loads(res.text)['data'])['ranking_list']
+    # list = None
     # print(res.text)
     if list == None:
         lastId[pid] = 0
@@ -145,34 +148,46 @@ def job(pid):
         }
         global post_id
         global lastId
+        page = 0
         refreshData['pro_id'] = pid
         refreshData['moxi_post_id'] = post_id[pid]
+        refreshData['page_index'] = 0
         lastIdRes = requests.post(refreshUrl, data=refreshData, headers=header,timeout=5)
         realTimes = json.loads(json.loads(lastIdRes.text)['data'])
         # testz = db[pid].update_one({'uid':'6666'},{'$set':{'nickName':'哈哈哈哈'},'$inc':{'money':1000/100}}, True)
         # print(db[pid].find_one({'uid': '6666'}))
         recent = lastId[pid]
-        for index, item in enumerate(realTimes):
-            # print('********')
-            # print('this:'+ str(item['id'])  )
-            # print(index)
-            # print( lastId )
-            # print('********')
+        end = False
+        while len(realTimes) != 0:
+            for index, item in enumerate(realTimes):
+                # print('********')
+                # print('this:'+ str(item['id'])  )
+                # print(index)
+                # print( lastId )
+                # print('********')
 
-            if int(item['id'])  > recent:
-                updateRes = db[pid].update_one({'uid':str(item['user_id'])},{'$inc':{'money':item['pay_amount']/100}, '$set':{'nickName':item['user_info']['username']}}, True)
-                # print( updateRes.modified_count )
-                if updateRes.upserted_id != None:
-                    print('新增')
+                if int(item['id'])  > recent:
+                    updateRes = db[pid].update_one({'uid':str(item['user_id'])},{'$inc':{'money':int(item['pay_amount'])/100}, '$set':{'nickName':item['user_info']['username']}}, True)
+                    # print( updateRes.modified_count )
+                    if updateRes.upserted_id != None:
+                        print('新增')
+                    else:
+                        print('更新')
+                    print(pid + '---' + str(item['user_info']['username'] + '----' + str(int(item['pay_amount'])/100)))
+                    if index == 0 and page == 0:
+                        print(pid + '---refresh lastId---'+ str(item['id']))
+                        lastId[pid] = int(item['id'])
+                        db['lastId'].update_one({'pid': pid}, {'$set': {'lastId': item['id']}}, True)
                 else:
-                    print('更新')
-                print(pid + '---' + str(item['user_info']['username'] + '----' + str(item['pay_amount']/100)))
-                if index == 0:
-                    print(pid + '---refresh lastId---'+ str(item['id']))
-                    lastId[pid] = int(item['id'])
-                    db['lastId'].update_one({'pid': pid}, {'$set': {'lastId': item['id']}}, True)
-            else:
+                    print('out')
+                    end = True
+                    break
+            if end:
                 break
+            page = page + 1
+            refreshData['page_index'] = page * 20
+            lastIdRes = requests.post(refreshUrl, data=refreshData, headers=header, timeout=5)
+            realTimes = json.loads(json.loads(lastIdRes.text)['data'])
     return refresh
 
 db = connectDB()
@@ -185,8 +200,12 @@ db = connectDB()
 #
 initProject('23292')
 initProject('20994')
-sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2019-06-21 20:55:00',max_instances=3)
-sched.add_job(job('20994'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2019-06-21 20:55:00',max_instances=3)
+initProject('22680')
+initProject('20957')
+sched.add_job(job('20957'), 'interval', seconds=3, start_date='2018-06-22 11:55:00', end_date='2018-06-23 11:30:00',max_instances=3)
+sched.add_job(job('22680'), 'interval', seconds=3, start_date='2018-06-22 11:55:00', end_date='2018-06-23 11:30:00',max_instances=3)
+sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
+sched.add_job(job('20994'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
 sched.start()
 # refresh('19179')
 # refresh('19179')
