@@ -4,10 +4,10 @@ import json
 from pymongo import MongoClient
 import pprint
 from datetime import date
-from apscheduler.schedulers.background import BackgroundScheduler
-sched = BackgroundScheduler()
-# from apscheduler.schedulers.blocking import BlockingScheduler
-# sched = BlockingScheduler()
+# from apscheduler.schedulers.background import BackgroundScheduler
+# sched = BackgroundScheduler()
+from apscheduler.schedulers.blocking import BlockingScheduler
+sched = BlockingScheduler()
 
 pid = '22904'
 post_id = {}
