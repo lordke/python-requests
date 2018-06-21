@@ -172,9 +172,9 @@ def job(pid):
                     updateRes = db[pid].update_one({'uid':str(item['user_id'])},{'$inc':{'money':int(item['pay_amount'])/100}, '$set':{'nickName':item['user_info']['username']}}, True)
                     # print( updateRes.modified_count )
                     if updateRes.upserted_id != None:
-                        print('新增')
+                        print('add')
                     else:
-                        print('更新')
+                        print('update')
                     print(pid + '---' + str(item['user_info']['username'] + '----' + str(int(item['pay_amount'])/100)))
                     if index == 0 and page == 0:
                         print(pid + '---refresh lastId---'+ str(item['id']))
