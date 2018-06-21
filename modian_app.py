@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-
 import requests
 import re
 import json
 from pymongo import MongoClient
 import pprint
 from datetime import date
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 # from apscheduler.schedulers.background import BackgroundScheduler
 # sched = BackgroundScheduler()
 from apscheduler.schedulers.blocking import BlockingScheduler
