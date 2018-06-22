@@ -5,9 +5,9 @@ import json
 from pymongo import MongoClient
 import pprint
 from datetime import date
-import sys
-import io
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+# import sys
+# import io
+# sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # from apscheduler.schedulers.background import BackgroundScheduler
 # sched = BackgroundScheduler()
@@ -99,6 +99,8 @@ def initProject(pid):
 
     res = requests.post(url, data=rankData, headers=header,timeout=5)
     list = json.loads(json.loads(res.text)['data'])['ranking_list']
+    # print(res.text)
+    # print(rankData)
     # list = None
     # print(res.text)
     if list == None:
@@ -178,13 +180,15 @@ def job(pid):
                         print('add')
                     else:
                         print('update')
-                    print(pid + '---' + str(item['user_info']['username'] + '----' + str(int(item['pay_amount'])/100)))
+                    # print(pid + '---' + str(item['user_info']['username'] + '----' + str(int(item['pay_amount'])/100)))
+                    print(pid +'----' + str(int(item['pay_amount']) / 100))
+
                     if index == 0 and page == 0:
                         print(pid + '---refresh lastId---'+ str(item['id']))
                         lastId[pid] = int(item['id'])
                         db['lastId'].update_one({'pid': pid}, {'$set': {'lastId': item['id']}}, True)
                 else:
-                    print('out')
+                    # print('out')
                     end = True
                     break
             if end:
@@ -203,14 +207,14 @@ db = connectDB()
 
 
 #
-initProject('23292')
-initProject('20994')
+# initProject('23292')
+# initProject('20994')
 initProject('22680')
 initProject('20957')
 sched.add_job(job('20957'), 'interval', seconds=3, start_date='2018-06-22 11:55:00', end_date='2018-06-23 11:30:00',max_instances=3)
 sched.add_job(job('22680'), 'interval', seconds=3, start_date='2018-06-22 11:55:00', end_date='2018-06-23 11:30:00',max_instances=3)
-sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
-sched.add_job(job('20994'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
+# sched.add_job(job('23292'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
+# sched.add_job(job('20994'), 'interval', seconds=3, start_date='2018-06-21 14:08:00', end_date='2018-06-22 12:30:00',max_instances=3)
 sched.start()
 # refresh('19179')
 # refresh('19179')
